@@ -1,0 +1,127 @@
+{% extends 'manager/base.html' %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div>
+        <h2 style="color:#0052cc;">📁 {{ project.name }}</h2>
+        <p style="color:#666;">{{ project.description }}</p>
+    </div>
+    <div>
+        <a href="/project/{{ project.pk }}/create-task/" class="btn">+ Add Task</a>
+    </div>
+</div>
+
+{% if project.owner == user %}
+<div class="card" style="margin-bottom:20px;">
+    <h4 style="margin-bottom:10px;">➕ Add Member</h4>
+    <form method="POST" action="/project/{{ project.pk }}/add-member/" style="display:flex; gap:10px;">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Enter username" style="margin:0; flex:1;">
+        <button type="submit" class="btn btn-green">Add</button>
+    </form>
+    <p style="margin-top:10px; font-size:13px; color:#666;">
+        Members: {% for m in members %}{{ m.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
+    </p>
+</div>
+{% endif %}
+
+<!-- Kanban Board -->
+<div style="display:flex; gap:20px; overflow-x:auto;">
+
+    <!-- TO DO -->
+    <div style="min-width:280px; flex:1;">
+        <div style="background:#dfe1e6; padding:10px 15px; border-radius:8px 8px 0 0;">
+            <h3>📌 To Do ({{ todo_tasks.count }})</h3>
+        </div>
+        <div style="background:#f4f5f7; padding:10px; border-radius:0 0 8px 8px; min-height:200px;">
+            {% for task in todo_tasks %}
+            <div class="card" style="margin-bottom:10px; padding:15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <a href="/task/{{ task.pk }}/" style="font-weight:bold; color:#333; text-decoration:none;">{{ task.title }}</a>
+                    <span class="badge badge-{{ task.priority }}">{{ task.priority }}</span>
+                </div>
+                {% if task.assigned_to %}
+                <p style="font-size:12px; color:#666;">👤 {{ task.assigned_to.username }}</p>
+                {% endif %}
+                {% if task.due_date %}
+                <p style="font-size:12px; color:#666;">📅 {{ task.due_date }}</p>
+                {% endif %}
+                <form method="POST" action="/task/{{ task.pk }}/update-status/" style="margin-top:8px;">
+                    {% csrf_token %}
+                    <select name="status" onchange="this.form.submit()" style="margin:0; padding:5px; font-size:12px;">
+                        <option value="todo" selected>To Do</option>
+                        <option value="inprogress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                </form>
+            </div>
+            {% empty %}
+            <p style="color:#999; text-align:center; padding:20px;">No tasks</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- IN PROGRESS -->
+    <div style="min-width:280px; flex:1;">
+        <div style="background:#deebff; padding:10px 15px; border-radius:8px 8px 0 0;">
+            <h3>⚡ In Progress ({{ inprogress_tasks.count }})</h3>
+        </div>
+        <div style="background:#f4f5f7; padding:10px; border-radius:0 0 8px 8px; min-height:200px;">
+            {% for task in inprogress_tasks %}
+            <div class="card" style="margin-bottom:10px; padding:15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <a href="/task/{{ task.pk }}/" style="font-weight:bold; color:#333; text-decoration:none;">{{ task.title }}</a>
+                    <span class="badge badge-{{ task.priority }}">{{ task.priority }}</span>
+                </div>
+                {% if task.assigned_to %}
+                <p style="font-size:12px; color:#666;">👤 {{ task.assigned_to.username }}</p>
+                {% endif %}
+                {% if task.due_date %}
+                <p style="font-size:12px; color:#666;">📅 {{ task.due_date }}</p>
+                {% endif %}
+                <form method="POST" action="/task/{{ task.pk }}/update-status/" style="margin-top:8px;">
+                    {% csrf_token %}
+                    <select name="status" onchange="this.form.submit()" style="margin:0; padding:5px; font-size:12px;">
+                        <option value="todo">To Do</option>
+                        <option value="inprogress" selected>In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                </form>
+            </div>
+            {% empty %}
+            <p style="color:#999; text-align:center; padding:20px;">No tasks</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- DONE -->
+    <div style="min-width:280px; flex:1;">
+        <div style="background:#e3fcef; padding:10px 15px; border-radius:8px 8px 0 0;">
+            <h3>✅ Done ({{ done_tasks.count }})</h3>
+        </div>
+        <div style="background:#f4f5f7; padding:10px; border-radius:0 0 8px 8px; min-height:200px;">
+            {% for task in done_tasks %}
+            <div class="card" style="margin-bottom:10px; padding:15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <a href="/task/{{ task.pk }}/" style="font-weight:bold; color:#333; text-decoration:none;">{{ task.title }}</a>
+                    <span class="badge badge-{{ task.priority }}">{{ task.priority }}</span>
+                </div>
+                {% if task.assigned_to %}
+                <p style="font-size:12px; color:#666;">👤 {{ task.assigned_to.username }}</p>
+                {% endif %}
+                <form method="POST" action="/task/{{ task.pk }}/update-status/" style="margin-top:8px;">
+                    {% csrf_token %}
+                    <select name="status" onchange="this.form.submit()" style="margin:0; padding:5px; font-size:12px;">
+                        <option value="todo">To Do</option>
+                        <option value="inprogress">In Progress</option>
+                        <option value="done" selected>Done</option>
+                    </select>
+                </form>
+            </div>
+            {% empty %}
+            <p style="color:#999; text-align:center; padding:20px;">No tasks</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
