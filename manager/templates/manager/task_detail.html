@@ -1,0 +1,53 @@
+{% extends 'manager/base.html' %}
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:15px;">
+        <div>
+            <h2>{{ task.title }}</h2>
+            <p style="color:#666; margin-top:5px;">Project: <a href="/project/{{ task.project.pk }}/" style="color:#0052cc;">{{ task.project.name }}</a></p>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <span class="badge badge-{{ task.status }}">{{ task.get_status_display }}</span>
+            <span class="badge badge-{{ task.priority }}">{{ task.priority }}</span>
+        </div>
+    </div>
+    <p style="margin-bottom:15px;">{{ task.description|default:"No description." }}</p>
+    <div style="display:flex; gap:30px; font-size:14px; color:#666; margin-bottom:15px;">
+        <p>👤 Assigned: <strong>{{ task.assigned_to.username|default:"Unassigned" }}</strong></p>
+        <p>📅 Due: <strong>{{ task.due_date|default:"No due date" }}</strong></p>
+        <p>🕒 Created: <strong>{{ task.created_at|date:"M d, Y" }}</strong></p>
+    </div>
+
+    <form method="POST" action="/task/{{ task.pk }}/update-status/" style="display:flex; gap:10px; align-items:center;">
+        {% csrf_token %}
+        <select name="status" style="width:auto; margin:0;">
+            <option value="todo" {% if task.status == 'todo' %}selected{% endif %}>To Do</option>
+            <option value="inprogress" {% if task.status == 'inprogress' %}selected{% endif %}>In Progress</option>
+            <option value="done" {% if task.status == 'done' %}selected{% endif %}>Done</option>
+        </select>
+        <button type="submit" class="btn btn-green">Update Status</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom:15px;">💬 Comments ({{ comments.count }})</h3>
+    {% if user.is_authenticated %}
+    <form method="POST" style="margin-bottom:20px;">
+        {% csrf_token %}
+        <textarea name="content" placeholder="Add a comment..." style="min-height:80px; margin-bottom:10px;"></textarea>
+        <button type="submit" class="btn">Post Comment</button>
+    </form>
+    {% endif %}
+    {% for comment in comments %}
+    <div style="border-bottom:1px solid #eee; padding:12px 0;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+            <strong style="color:#0052cc;">{{ comment.user.username }}</strong>
+            <small style="color:#999;">{{ comment.created_at|timesince }} ago</small>
+        </div>
+        <p>{{ comment.content }}</p>
+    </div>
+    {% empty %}
+    <p style="color:#999;">No comments yet. Be the first to comment!</p>
+    {% endfor %}
+</div>
+{% endblock %}
