@@ -1,0 +1,30 @@
+{% extends 'manager/base.html' %}
+{% block content %}
+<div class="card" style="max-width:500px; margin:auto;">
+    <h2 style="margin-bottom:20px;">✅ Create New Task</h2>
+    <p style="color:#666; margin-bottom:20px;">Project: <strong>{{ project.name }}</strong></p>
+    <form method="POST">
+        {% csrf_token %}
+        <label>Task Title</label>
+        <input type="text" name="title" placeholder="Enter task title" required>
+        <label>Description</label>
+        <textarea name="description" placeholder="Describe the task..." style="min-height:80px;"></textarea>
+        <label>Assign To</label>
+        <select name="assigned_to">
+            <option value="">-- Unassigned --</option>
+            {% for member in members %}
+            <option value="{{ member.pk }}">{{ member.username }}</option>
+            {% endfor %}
+        </select>
+        <label>Priority</label>
+        <select name="priority">
+            <option value="low">🟢 Low</option>
+            <option value="medium" selected>🟡 Medium</option>
+            <option value="high">🔴 High</option>
+        </select>
+        <label>Due Date</label>
+        <input type="date" name="due_date">
+        <button type="submit" class="btn" style="width:100%; padding:12px; font-size:16px;">Create Task ✅</button>
+    </form>
+</div>
+{% endblock %}
